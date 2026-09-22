@@ -1,7 +1,9 @@
+const cors = require("cors");
 const express = require("express");
 const pool = require("./config/db");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./docs/swagger");
+
 const roomRoutes = require("./routes/room.routes");
 const lecturerAvailabilityRoutes = require("./routes/lecturerAvailability.routes");
 const lecturerRoutes = require("./routes/lecturer.routes");
@@ -12,21 +14,44 @@ const timeslotRoutes = require("./routes/timeslot.routes");
 const sectionRoutes = require("./routes/section.routes");
 const allocationRoutes = require("./routes/allocation.routes");
 const aiRoutes = require("./routes/ai.routes");
+
 const { testFastAPI } = require("./services/fastapi.service");
+
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
+
 const authRoutes = require("./routes/auth.routes");
 const studentTimetableRoutes = require("./routes/studentTimetable.routes");
+
 const roomEquipmentRoutes = require("./routes/roomEquipment.routes");
 const sectionEquipmentRoutes = require("./routes/sectionEquipment.routes");
+
 const app = express();
 
+// =========================
+// CORS Middleware
+// =========================
+
+app.use(
+    cors({
+        origin: [
+            "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app"
+        ],
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
 
 // =========================
 // JSON Middleware
 // =========================
 
 app.use(express.json());
+
+// =========================
+// Authentication Routes
+// =========================
+
 app.use("/api/auth", authRoutes);
 
 // =========================
@@ -39,29 +64,41 @@ app.use(
     swaggerUi.setup(swaggerSpec)
 );
 
-
 // =========================
 // Main API Routes
 // =========================
 
 app.use("/api/allocations", allocationRoutes);
+
 app.use("/api/ai", aiRoutes);
+
 app.use("/api/sections", sectionRoutes);
+
 app.use("/api/rooms", roomRoutes);
+
 app.use("/api/lecturers", lecturerRoutes);
-app.use("/api/lecturer-availability",lecturerAvailabilityRoutes);
+
+app.use(
+    "/api/lecturer-availability",
+    lecturerAvailabilityRoutes
+);
+
 app.use("/api/courses", courseRoutes);
+
 app.use("/api/student-groups", studentGroupRoutes);
+
 app.use("/api/equipment", equipmentRoutes);
+
 app.use("/api/timeslots", timeslotRoutes);
+
 app.use("/api/rooms", roomEquipmentRoutes);
+
 app.use("/api/sections", sectionEquipmentRoutes);
+
 app.use(
     "/api/student-timetable",
     studentTimetableRoutes
 );
-
-
 
 // =========================
 // Root Route
@@ -83,7 +120,6 @@ app.get("/", (req, res) => {
     });
 });
 
-
 // =========================
 // Health Check - Backend
 // =========================
@@ -104,7 +140,6 @@ app.get("/api/health", (req, res) => {
         service: "backend"
     });
 });
-
 
 // =========================
 // Health Check - Database
@@ -140,7 +175,6 @@ app.get("/api/health/db", async (req, res) => {
     }
 });
 
-
 // =========================
 // Health Check - FastAPI
 // =========================
@@ -173,19 +207,16 @@ app.get("/api/health/fastapi", async (req, res) => {
     }
 });
 
-
 // =========================
 // 404 Handler
 // =========================
 
 app.use(notFound);
 
-
 // =========================
 // Global Error Handler
 // =========================
 
 app.use(errorHandler);
-
 
 module.exports = app;
