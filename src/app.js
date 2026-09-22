@@ -32,15 +32,15 @@ const app = express();
 // CORS Middleware
 // =========================
 
-app.use(
-    cors({
-        origin: [
-            "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app"
-        ],
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
-);
+app.use(cors({
+    origin: "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: false
+}));
+
+
+
 
 // =========================
 // JSON Middleware
