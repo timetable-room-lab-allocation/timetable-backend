@@ -1,8 +1,10 @@
-const FASTAPI_URL = "http://127.0.0.1:8000";
+const FASTAPI_URL =
+  process.env.FASTAPI_URL ||
+  "http://127.0.0.1:8000";
 
 const testFastAPI = async () => {
   try {
-    const response = await fetch(`${FASTAPI_URL}/health`);
+    const response = await fetch(`${FASTAPI_URL}/`);
 
     const data = await response.json();
 
