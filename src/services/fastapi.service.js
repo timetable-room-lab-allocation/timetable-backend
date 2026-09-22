@@ -4,11 +4,23 @@ const FASTAPI_URL =
 
 const testFastAPI = async () => {
   try {
-    const response = await fetch(`${FASTAPI_URL}/`);
+    const url = `${FASTAPI_URL}/`;
 
-    const data = await response.json();
+    const response = await fetch(url);
 
-    return data;
+    const text = await response.text();
+
+    console.log("FASTAPI URL:", url);
+    console.log("FASTAPI STATUS:", response.status);
+    console.log("FASTAPI CONTENT-TYPE:", response.headers.get("content-type"));
+    console.log("FASTAPI RESPONSE:", text);
+
+    return {
+      url,
+      status: response.status,
+      contentType: response.headers.get("content-type"),
+      response: text,
+    };
   } catch (error) {
     console.error(
       "FastAPI connection error:",
