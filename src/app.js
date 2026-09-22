@@ -32,12 +32,24 @@ const app = express();
 // CORS Middleware
 // =========================
 
+const allowedOrigins = [
+    "https://timetable-frontend-o8qf0d6kn-modyelansarys-projects.vercel.app",
+    "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app"
+];
+
 app.use(cors({
-    origin: "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app",
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: false
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+app.use(express.json());
 
 
 
