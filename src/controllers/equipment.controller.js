@@ -1,35 +1,48 @@
 const pool = require("../config/db");
 const { successResponse } = require("../utils/apiResponse");
 
+// GET /api/equipment
 const getAllEquipment = async (req, res) => {
     try {
         const [equipment] = await pool.query(
-            "SELECT * FROM equipment"
+            `
+            SELECT
+                id,
+                name
+            FROM equipment
+            ORDER BY id
+            `
         );
 
-        successResponse(
+        return successResponse(
             res,
             200,
             "Equipment fetched successfully",
             equipment
         );
-
     } catch (error) {
-        console.error(error);
+        console.error("Get equipment error:", error);
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Failed to fetch equipment"
         });
     }
 };
 
+// GET /api/equipment/:id
 const getEquipmentById = async (req, res) => {
     try {
         const { id } = req.params;
 
         const [equipment] = await pool.query(
-            "SELECT * FROM equipment WHERE id = ?",
+            `
+            SELECT
+                id,
+                name
+            FROM equipment
+            WHERE id = ?
+            `,
             [id]
         );
 
@@ -40,33 +53,43 @@ const getEquipmentById = async (req, res) => {
             });
         }
 
-        successResponse(
+        return successResponse(
             res,
             200,
             "Equipment fetched successfully",
             equipment[0]
         );
-
     } catch (error) {
-        console.error(error);
+        console.error("Get equipment by id error:", error);
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Failed to fetch equipment"
         });
     }
 };
 
+// POST /api/equipment
 const createEquipment = async (req, res) => {
     try {
         const { name } = req.body;
 
+        if (!name || !name.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Equipment name is required"
+            });
+        }
+
         const [result] = await pool.query(
-            "INSERT INTO equipment (name) VALUES (?)",
-            [name]
+            `
+            INSERT INTO equipment (name)
+            VALUES (?)
+            `,
+            [name.trim()]
         );
 
-        successResponse(
+        return successResponse(
             res,
             201,
             "Equipment created successfully",
@@ -74,9 +97,8 @@ const createEquipment = async (req, res) => {
                 equipmentId: result.insertId
             }
         );
-
     } catch (error) {
-        console.error(error);
+        console.error("Create equipment error:", error);
 
         if (error.code === "ER_DUP_ENTRY") {
             return res.status(409).json({
@@ -85,21 +107,33 @@ const createEquipment = async (req, res) => {
             });
         }
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Failed to create equipment"
         });
     }
 };
 
+// PUT /api/equipment/:id
 const updateEquipment = async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
 
+        if (!name || !name.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Equipment name is required"
+            });
+        }
+
         const [result] = await pool.query(
-            "UPDATE equipment SET name = ? WHERE id = ?",
-            [name, id]
+            `
+            UPDATE equipment
+            SET name = ?
+            WHERE id = ?
+            `,
+            [name.trim(), id]
         );
 
         if (result.affectedRows === 0) {
@@ -109,28 +143,41 @@ const updateEquipment = async (req, res) => {
             });
         }
 
-        successResponse(
+        return successResponse(
             res,
             200,
-            "Equipment updated successfully"
+            "Equipment updated successfully",
+            {
+                equipmentId: Number(id)
+            }
         );
-
     } catch (error) {
-        console.error(error);
+        console.error("Update equipment error:", error);
 
-        res.status(500).json({
+        if (error.code === "ER_DUP_ENTRY") {
+            return res.status(409).json({
+                success: false,
+                message: "Equipment already exists"
+            });
+        }
+
+        return res.status(500).json({
             success: false,
             message: "Failed to update equipment"
         });
     }
 };
 
+// DELETE /api/equipment/:id
 const deleteEquipment = async (req, res) => {
     try {
         const { id } = req.params;
 
         const [result] = await pool.query(
-            "DELETE FROM equipment WHERE id = ?",
+            `
+            DELETE FROM equipment
+            WHERE id = ?
+            `,
             [id]
         );
 
@@ -141,16 +188,26 @@ const deleteEquipment = async (req, res) => {
             });
         }
 
-        successResponse(
+        return successResponse(
             res,
             200,
-            "Equipment deleted successfully"
+            "Equipment deleted successfully",
+            {
+                equipmentId: Number(id)
+            }
         );
-
     } catch (error) {
-        console.error(error);
+        console.error("Delete equipment error:", error);
 
-        res.status(500).json({
+        if (error.code === "ER_ROW_IS_REFERENCED_2") {
+            return res.status(409).json({
+                success: false,
+                message:
+                    "Cannot delete equipment because it is being used by rooms or sections"
+            });
+        }
+
+        return res.status(500).json({
             success: false,
             message: "Failed to delete equipment"
         });

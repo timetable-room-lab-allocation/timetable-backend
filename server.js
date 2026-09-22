@@ -1,5 +1,4 @@
 const app = require("./src/app");
-
 const PORT = 5000;
 
 app.get("/test", (req, res) => {

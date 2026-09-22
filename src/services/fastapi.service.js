@@ -8,34 +8,69 @@ const testFastAPI = async () => {
 
     return data;
   } catch (error) {
-    console.error("FastAPI connection error:", error.message);
+    console.error(
+      "FastAPI connection error:",
+      error.message
+    );
+
     throw error;
   }
 };
 
 const getRecommendations = async (requestData) => {
   try {
-    const response = await fetch(`${FASTAPI_URL}/api/recommendations`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestData),
-    });
+    console.log("=================================");
+    console.log("CALLING FASTAPI...");
+    console.log("URL:", `${FASTAPI_URL}/api/recommendations`);
+    console.log(
+      "REQUEST DATA:",
+      JSON.stringify(requestData, null, 2)
+    );
+    console.log("=================================");
+
+    const response = await fetch(
+      `${FASTAPI_URL}/api/recommendations`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      }
+    );
+
+    console.log(
+      "FASTAPI STATUS:",
+      response.status
+    );
 
     const data = await response.json();
+
+    console.log(
+      "FASTAPI RESPONSE:",
+      JSON.stringify(data, null, 2)
+    );
 
     if (!response.ok) {
       throw new Error(
         typeof data.detail === "string"
           ? data.detail
-          : JSON.stringify(data.detail, null, 2),
+          : JSON.stringify(
+              data.detail,
+              null,
+              2
+            )
       );
     }
 
     return data;
+
   } catch (error) {
-    console.error("FastAPI recommendation error:", error.message);
+    console.error(
+      "FastAPI recommendation error:",
+      error.message
+    );
+
     throw error;
   }
 };

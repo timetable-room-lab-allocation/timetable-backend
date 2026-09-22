@@ -3,6 +3,7 @@ const pool = require("./config/db");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./docs/swagger");
 const roomRoutes = require("./routes/room.routes");
+const lecturerAvailabilityRoutes = require("./routes/lecturerAvailability.routes");
 const lecturerRoutes = require("./routes/lecturer.routes");
 const courseRoutes = require("./routes/course.routes");
 const studentGroupRoutes = require("./routes/studentGroup.routes");
@@ -14,6 +15,10 @@ const aiRoutes = require("./routes/ai.routes");
 const { testFastAPI } = require("./services/fastapi.service");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
+const authRoutes = require("./routes/auth.routes");
+const studentTimetableRoutes = require("./routes/studentTimetable.routes");
+const roomEquipmentRoutes = require("./routes/roomEquipment.routes");
+const sectionEquipmentRoutes = require("./routes/sectionEquipment.routes");
 const app = express();
 
 
@@ -22,6 +27,7 @@ const app = express();
 // =========================
 
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 // =========================
 // Swagger API Documentation
@@ -43,10 +49,18 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/lecturers", lecturerRoutes);
+app.use("/api/lecturer-availability",lecturerAvailabilityRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/student-groups", studentGroupRoutes);
 app.use("/api/equipment", equipmentRoutes);
 app.use("/api/timeslots", timeslotRoutes);
+app.use("/api/rooms", roomEquipmentRoutes);
+app.use("/api/sections", sectionEquipmentRoutes);
+app.use(
+    "/api/student-timetable",
+    studentTimetableRoutes
+);
+
 
 
 // =========================
