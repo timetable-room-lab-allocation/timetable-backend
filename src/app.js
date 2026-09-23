@@ -33,8 +33,10 @@ const app = express();
 // =========================
 
 const allowedOrigins = [
+    "https://timetable-frontend-nzkrjxqz1-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-o8qf0d6kn-modyelansarys-projects.vercel.app",
-    "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app"
+    "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app",
+    "http://localhost:5173"
 ];
 
 app.use(cors({
@@ -42,11 +44,12 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error("Not allowed by CORS"));
+            callback(new Error(`Not allowed by CORS: ${origin}`));
         }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 }));
 
 app.use(express.json());
