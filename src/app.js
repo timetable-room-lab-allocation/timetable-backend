@@ -33,6 +33,7 @@ const app = express();
 // =========================
 
 const allowedOrigins = [
+    "https://timetable-frontend-4ld77avoy-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-nzkrjxqz1-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-o8qf0d6kn-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app",
