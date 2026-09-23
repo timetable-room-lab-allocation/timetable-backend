@@ -37,6 +37,7 @@ const allowedOrigins = [
     "https://timetable-frontend-nzkrjxqz1-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-o8qf0d6kn-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app",
+    "https://timetable-backend-five.vercel.app",
     "http://localhost:5173"
 ];
 
