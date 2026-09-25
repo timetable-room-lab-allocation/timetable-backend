@@ -81,10 +81,22 @@ app.use(cors({
             return callback(null, true);
         }
 
-        // Allow all localhost ports during local development
-        if (/^http:\/\/localhost:\d+$/.test(origin)) {
-            return callback(null, true);
-        }
+       // Allow all localhost ports
+if (/^https?:\/\/localhost:\d+$/.test(origin)) {
+    return callback(null, true);
+}
+
+// Allow all Vercel frontend deployments
+if (
+    /^https:\/\/timetable-frontend-[a-z0-9]+-modyelansarys-projects\.vercel\.app$/.test(origin)
+) {
+    return callback(null, true);
+}
+
+// Allow configured production origins
+if (allowedOrigins.includes(origin)) {
+    return callback(null, true);
+}
 
         // Allow configured production origins
         if (allowedOrigins.includes(origin)) {
