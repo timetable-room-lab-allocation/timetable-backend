@@ -32,26 +32,23 @@ const app = express();
 // CORS Middleware
 // =========================
 
+// CORS
 const allowedOrigins = [
-    "https://timetable-frontend-hxyatu96a-modyelansarys-projects.vercel.app",
+    "https://timetable-frontend-eq42x535a-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-five.vercel.app",
     "http://localhost:5173",
+    "http://localhost:3000"
 ];
 
 app.use(
     cors({
         origin: function (origin, callback) {
-            // Allow requests without Origin
+            // Allow requests without an Origin
+            // (Postman, server-to-server, etc.)
             if (!origin) {
                 return callback(null, true);
             }
 
-            // Allow all localhost ports
-            if (/^https?:\/\/localhost:\d+$/.test(origin)) {
-                return callback(null, true);
-            }
-
-            // Allow configured production origins
             if (allowedOrigins.includes(origin)) {
                 return callback(null, true);
             }
@@ -60,55 +57,21 @@ app.use(
                 new Error(`Not allowed by CORS: ${origin}`)
             );
         },
-
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-
-        allowedHeaders: ["Content-Type", "Authorization"],
-
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ],
         credentials: true
     })
 );
-
-app.use(cors({
-    origin: function (origin, callback) {
-
-        // Allow requests without Origin
-        if (!origin) {
-            return callback(null, true);
-        }
-
-       // Allow all localhost ports
-if (/^https?:\/\/localhost:\d+$/.test(origin)) {
-    return callback(null, true);
-}
-
-// Allow all Vercel frontend deployments
-if (
-    /^https:\/\/timetable-frontend-[a-z0-9]+-modyelansarys-projects\.vercel\.app$/.test(origin)
-) {
-    return callback(null, true);
-}
-
-// Allow configured production origins
-if (allowedOrigins.includes(origin)) {
-    return callback(null, true);
-}
-
-        // Allow configured production origins
-        if (allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-
-        return callback(new Error(`Not allowed by CORS: ${origin}`));
-    },
-
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-
-    allowedHeaders: ["Content-Type", "Authorization"],
-
-    credentials: true
-}));
-
 // =========================
 // JSON Middleware
 // =========================
@@ -194,7 +157,9 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/health/db", async (req, res) => {
     try {
-        const [rows] = await pool.query("SELECT 1 AS ok");
+        const [rows] = await pool.query(
+            "SELECT 1 AS ok"
+        );
 
         res.json({
             database: "connected",
@@ -223,7 +188,10 @@ app.get("/api/health/fastapi", async (req, res) => {
             response: data
         });
     } catch (error) {
-        console.error("FastAPI health check error:", error);
+        console.error(
+            "FastAPI health check error:",
+            error
+        );
 
         res.status(500).json({
             fastapi: "error",
