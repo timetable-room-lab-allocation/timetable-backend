@@ -1,6 +1,6 @@
 const cors = require("cors");
 const express = require("express");
-const pool = require("./config/db");
+const pool = require("../config/db");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./docs/swagger");
 
@@ -40,27 +40,39 @@ const allowedOrigins = [
 
     "https://timetable-backend-five.vercel.app",
     "https://timetable-backend-oeccelzml-modyelansarys-projects.vercel.app",
+    "https://timetable-frontend-five.vercel.app",
 
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://localhost:5000"
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error(`Not allowed by CORS: ${origin}`));
+
+        // Allow requests without Origin
+        if (!origin) {
+            return callback(null, true);
         }
+
+        // Allow all localhost ports during local development
+        if (/^http:\/\/localhost:\d+$/.test(origin)) {
+            return callback(null, true);
+        }
+
+        // Allow configured production origins
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`Not allowed by CORS: ${origin}`));
     },
+
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+
     allowedHeaders: ["Content-Type", "Authorization"],
+
     credentials: true
 }));
-
-app.use(express.json());
-
-
-
 
 // =========================
 // JSON Middleware
@@ -124,16 +136,6 @@ app.use(
 // Root Route
 // =========================
 
-/**
- * @swagger
- * /:
- *   get:
- *     summary: Check backend API status
- *     tags: [Health]
- *     responses:
- *       200:
- *         description: Backend API is running
- */
 app.get("/", (req, res) => {
     res.json({
         message: "Timetable Backend API is running"
@@ -144,16 +146,6 @@ app.get("/", (req, res) => {
 // Health Check - Backend
 // =========================
 
-/**
- * @swagger
- * /api/health:
- *   get:
- *     summary: Check backend health
- *     tags: [Health]
- *     responses:
- *       200:
- *         description: Backend is running successfully
- */
 app.get("/api/health", (req, res) => {
     res.json({
         status: "ok",
@@ -165,18 +157,6 @@ app.get("/api/health", (req, res) => {
 // Health Check - Database
 // =========================
 
-/**
- * @swagger
- * /api/health/db:
- *   get:
- *     summary: Check database connection
- *     tags: [Health]
- *     responses:
- *       200:
- *         description: Database is connected successfully
- *       500:
- *         description: Database connection error
- */
 app.get("/api/health/db", async (req, res) => {
     try {
         const [rows] = await pool.query("SELECT 1 AS ok");
@@ -199,18 +179,6 @@ app.get("/api/health/db", async (req, res) => {
 // Health Check - FastAPI
 // =========================
 
-/**
- * @swagger
- * /api/health/fastapi:
- *   get:
- *     summary: Check FastAPI connection
- *     tags: [Health]
- *     responses:
- *       200:
- *         description: FastAPI is connected successfully
- *       500:
- *         description: FastAPI connection error
- */
 app.get("/api/health/fastapi", async (req, res) => {
     try {
         const data = await testFastAPI();
@@ -220,6 +188,8 @@ app.get("/api/health/fastapi", async (req, res) => {
             response: data
         });
     } catch (error) {
+        console.error("FastAPI health check error:", error);
+
         res.status(500).json({
             fastapi: "error",
             message: error.message

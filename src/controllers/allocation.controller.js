@@ -1,4 +1,4 @@
-const pool = require("../config/db");
+const pool = require("../../config/db");
 const { successResponse } = require("../utils/apiResponse");
 
 // =========================================================
@@ -28,10 +28,11 @@ const getAllAllocations = async (req, res) => {
                 ON a.section_id = s.id
              JOIN lecturers l
                 ON a.lecturer_id = l.id
-             JOIN rooms r
-                ON a.room_id = r.id
-             JOIN timeslots t
-                ON a.timeslot_id = t.id
+            LEFT JOIN rooms r
+    ON a.room_id = r.id
+
+LEFT JOIN timeslots t
+    ON a.timeslot_id = t.id
              ORDER BY a.id DESC`
         );
 
@@ -82,10 +83,11 @@ const getAllocationById = async (req, res) => {
                 ON a.section_id = s.id
              JOIN lecturers l
                 ON a.lecturer_id = l.id
-             JOIN rooms r
-                ON a.room_id = r.id
-             JOIN timeslots t
-                ON a.timeslot_id = t.id
+             LEFT JOIN rooms r
+    ON a.room_id = r.id
+
+LEFT JOIN timeslots t
+    ON a.timeslot_id = t.id
              WHERE a.id = ?`,
             [id]
         );
@@ -437,21 +439,14 @@ const createAllocation = async (req, res) => {
         );
 
     } catch (error) {
-        console.error(error);
+    console.error("CREATE ALLOCATION ERROR:", error);
 
-        if (error.code === "ER_DUP_ENTRY") {
-            return res.status(409).json({
-                success: false,
-                message:
-                    "This allocation conflicts with an existing allocation"
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to create allocation"
-        });
-    }
+    return res.status(500).json({
+        success: false,
+        message: "Failed to create allocation",
+        error: error.message
+    });
+}
 };
 
 

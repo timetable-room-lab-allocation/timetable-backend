@@ -1,4 +1,4 @@
-const pool = require("../config/db");
+const pool = require("../../config/db");
 const { getRecommendations } = require("../services/fastapi.service");
 
 const generateRecommendations = async (req, res) => {
@@ -91,46 +91,9 @@ const generateRecommendations = async (req, res) => {
             section.student_group
         );
 
-        // =========================================================
-        // STEP 2 - Check Approved Allocation
-        // =========================================================
+       
 
-        const [approvedSectionAllocations] = await pool.query(
-            `
-            SELECT
-                a.id,
-                a.room_id,
-                a.timeslot_id,
-                r.name AS room_name,
-                t.day,
-                t.start_time,
-                t.end_time
-            FROM allocations a
-            JOIN rooms r
-                ON a.room_id = r.id
-            JOIN timeslots t
-                ON a.timeslot_id = t.id
-            WHERE a.section_id = ?
-              AND a.status = 'Approved'
-            ORDER BY a.id DESC
-            `,
-            [section.id]
-        );
-
-        console.log(
-            "STEP 2 - Approved allocations:",
-            approvedSectionAllocations
-        );
-
-        if (approvedSectionAllocations.length > 0) {
-            return res.json({
-                success: true,
-                section_id: section.id,
-                recommendations: [],
-                message:
-                    "This section already has an approved allocation.",
-            });
-        }
+       
 
         // =========================================================
         // STEP 3 - Get Lecturer
@@ -362,59 +325,65 @@ const generateRecommendations = async (req, res) => {
         // STEP 9 - Get Approved Allocations
         // =========================================================
 
-        const [allocationRows] = await pool.query(
-            `
-            SELECT
-                a.id AS allocation_id,
+       // =========================================================
+// STEP 9 - Get Approved Allocations
+// =========================================================
 
-                s.id AS section_id,
-                s.name AS section_name,
-                s.students AS section_students,
-                s.duration AS section_duration,
-                s.room_type_required,
-                sg.name AS student_group,
+const [allocationRows] = await pool.query(
+    `
+    SELECT
+        a.id AS allocation_id,
 
-                l.id AS lecturer_id,
-                l.name AS lecturer_name,
+        s.id AS section_id,
+        s.name AS section_name,
+        s.students AS section_students,
+        s.duration AS section_duration,
+        s.room_type_required,
+        sg.name AS student_group,
 
-                r.id AS room_id,
-                r.name AS room_name,
-                r.room_type,
-                r.capacity,
-                r.is_available,
+        l.id AS lecturer_id,
+        l.name AS lecturer_name,
 
-                t.id AS timeslot_id,
-                t.day,
-                t.start_time,
-                t.end_time
+        r.id AS room_id,
+        r.name AS room_name,
+        r.room_type,
+        r.capacity,
+        r.is_available,
 
-            FROM allocations a
+        t.id AS timeslot_id,
+        t.day,
+        t.start_time,
+        t.end_time
 
-            JOIN sections s
-                ON a.section_id = s.id
+    FROM allocations a
 
-            JOIN student_groups sg
-                ON s.student_group_id = sg.id
+    JOIN sections s
+        ON a.section_id = s.id
 
-            JOIN lecturers l
-                ON a.lecturer_id = l.id
+    JOIN student_groups sg
+        ON s.student_group_id = sg.id
 
-            JOIN rooms r
-                ON a.room_id = r.id
+    JOIN lecturers l
+        ON a.lecturer_id = l.id
 
-            JOIN timeslots t
-                ON a.timeslot_id = t.id
+    JOIN rooms r
+        ON a.room_id = r.id
 
-            WHERE a.status = 'Approved'
+    JOIN timeslots t
+        ON a.timeslot_id = t.id
 
-            ORDER BY a.id
-            `
-        );
+    WHERE a.status = 'Approved'
+      AND a.section_id <> ?
 
-        console.log(
-            "STEP 9 - Approved allocation rows:",
-            allocationRows
-        );
+    ORDER BY a.id
+    `,
+    [section.id]
+);
+
+console.log(
+    "STEP 9 - Approved allocation rows:",
+    allocationRows
+);
 
         // =========================================================
         // STEP 10 - Build AI Request
@@ -532,10 +501,13 @@ const generateRecommendations = async (req, res) => {
             );
 
         console.log(
-            "🤖 FASTAPI RESPONSE:",
-            recommendations
-        );
-
+    "🤖 FASTAPI RESPONSE:",
+    JSON.stringify(
+        recommendations,
+        null,
+        2
+    )
+);
         // =========================================================
         // STEP 12 - Return Recommendations
         // =========================================================

@@ -1,4 +1,4 @@
-const pool = require("../config/db");
+const pool = require("../../config/db");
 
 // Get lecturer availability
 const getLecturerAvailability = async (req, res) => {
@@ -12,7 +12,8 @@ const getLecturerAvailability = async (req, res) => {
                 t.id AS timeslot_id,
                 t.day,
                 t.start_time,
-                t.end_time
+                t.end_time,
+                la.status
             FROM lecturer_availability la
             JOIN timeslots t
                 ON la.timeslot_id = t.id
@@ -28,15 +29,14 @@ const getLecturerAvailability = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("GET lecturer availability error:", error);
 
         return res.status(500).json({
             success: false,
-            message: "Failed to fetch lecturer availability"
+            message: error.message
         });
     }
 };
-
 
 // Set lecturer availability
 const setLecturerAvailability = async (req, res) => {
@@ -44,14 +44,14 @@ const setLecturerAvailability = async (req, res) => {
 
     try {
         const { lecturerId } = req.params;
-        const { timeslot_ids } = req.body;
+        const { availability } = req.body;
 
-        if (!Array.isArray(timeslot_ids)) {
-            return res.status(400).json({
-                success: false,
-                message: "timeslot_ids must be an array"
-            });
-        }
+if (!Array.isArray(availability)) {
+    return res.status(400).json({
+        success: false,
+        message: "availability must be an array"
+    });
+}
 
         await connection.beginTransaction();
 
@@ -64,18 +64,35 @@ const setLecturerAvailability = async (req, res) => {
             [lecturerId]
         );
 
-        // Add new availability
-        for (const timeslotId of timeslot_ids) {
+        // Add allowed / preferred slots
+        for (const item of availability) {
+
+            if (!item.timeslot_id) {
+                continue;
+            }
+
+            if (
+                item.status !== "allowed" &&
+                item.status !== "preferred"
+            ) {
+                continue;
+            }
+
             await connection.query(
                 `
                 INSERT INTO lecturer_availability
                 (
                     lecturer_id,
-                    timeslot_id
+                    timeslot_id,
+                    status
                 )
-                VALUES (?, ?)
+                VALUES (?, ?, ?)
                 `,
-                [lecturerId, timeslotId]
+                [
+                    lecturerId,
+                    item.timeslot_id,
+                    item.status
+                ]
             );
         }
 

@@ -1,4 +1,4 @@
-const pool = require("../config/db");
+const pool = require("../../config/db");
 const { successResponse } = require("../utils/apiResponse");
 
 const getAllSections = async (req, res) => {
