@@ -33,18 +33,45 @@ const app = express();
 // =========================
 
 const allowedOrigins = [
+    "https://timetable-frontend-p0e1gc5ys-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-4ld77avoy-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-nzkrjxqz1-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-o8qf0d6kn-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-25pjvr9oy-modyelansarys-projects.vercel.app",
-
-    "https://timetable-backend-five.vercel.app",
-    "https://timetable-backend-oeccelzml-modyelansarys-projects.vercel.app",
     "https://timetable-frontend-five.vercel.app",
-
     "http://localhost:5173",
-    "http://localhost:5000"
 ];
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            // Allow requests without Origin
+            if (!origin) {
+                return callback(null, true);
+            }
+
+            // Allow all localhost ports
+            if (/^https?:\/\/localhost:\d+$/.test(origin)) {
+                return callback(null, true);
+            }
+
+            // Allow configured production origins
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(
+                new Error(`Not allowed by CORS: ${origin}`)
+            );
+        },
+
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+
+        allowedHeaders: ["Content-Type", "Authorization"],
+
+        credentials: true
+    })
+);
 
 app.use(cors({
     origin: function (origin, callback) {
