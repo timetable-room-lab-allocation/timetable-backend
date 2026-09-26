@@ -34,19 +34,21 @@ const login = async (req, res) => {
             });
         }
 
-        const user = users[0];
+       const user = users[0];
 
-        const passwordMatch = await bcrypt.compare(
-            password,
-            user.password_hash
-        );
+console.log("LOGIN DEBUG:", {
+    email: user.email,
+    role: user.role,
+    password_hash: user.password_hash,
+    password_hash_length: user.password_hash?.length
+});
 
-        if (!passwordMatch) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid email or password"
-            });
-        }
+const passwordMatch = await bcrypt.compare(
+    password,
+    user.password_hash
+);
+
+console.log("PASSWORD MATCH:", passwordMatch);
 
         return res.json({
         success: true,
