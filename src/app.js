@@ -13,7 +13,7 @@ const timeslotRoutes = require("./routes/timeslot.routes");
 const sectionRoutes = require("./routes/section.routes");
 const allocationRoutes = require("./routes/allocation.routes");
 const aiRoutes = require("./routes/ai.routes");
-
+const userRoutes = require("./routes/user.routes");
 const { testFastAPI } = require("./services/fastapi.service");
 
 const notFound = require("./middleware/notFound");
@@ -91,7 +91,7 @@ app.use(express.json());
 // =========================
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/users", userRoutes);
 // =========================
 // Swagger API Documentation
 // =========================
