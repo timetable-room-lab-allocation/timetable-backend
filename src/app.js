@@ -3,7 +3,6 @@ const express = require("express");
 const pool = require("../config/db");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./docs/swagger");
-
 const roomRoutes = require("./routes/room.routes");
 const lecturerAvailabilityRoutes = require("./routes/lecturerAvailability.routes");
 const lecturerRoutes = require("./routes/lecturer.routes");
@@ -32,19 +31,18 @@ const app = express();
 // CORS Middleware
 // =========================
 
-// CORS
 const allowedOrigins = [
-    "https://timetable-frontend-eq42x535a-modyelansarys-projects.vercel.app",
-    "https://timetable-frontend-five.vercel.app",
     "http://localhost:5173",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://timetable-frontend-43l933rhk-modyelansarys-projects.vercel.app"
 ];
 
 app.use(
     cors({
         origin: function (origin, callback) {
-            // Allow requests without an Origin
-            // (Postman, server-to-server, etc.)
+
+            // Allow requests without Origin
+            // Example: Postman / server-to-server
             if (!origin) {
                 return callback(null, true);
             }
@@ -57,6 +55,7 @@ app.use(
                 new Error(`Not allowed by CORS: ${origin}`)
             );
         },
+
         methods: [
             "GET",
             "POST",
@@ -65,18 +64,27 @@ app.use(
             "DELETE",
             "OPTIONS"
         ],
+
         allowedHeaders: [
             "Content-Type",
             "Authorization"
         ],
+
         credentials: true
     })
 );
+
 // =========================
 // JSON Middleware
 // =========================
 
 app.use(express.json());
+
+// =========================
+// Routes
+// =========================
+
+// باقي الـ routes بتاعتك هنا...
 
 // =========================
 // Authentication Routes
